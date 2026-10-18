@@ -1,0 +1,35 @@
+name: Python DEV deployment workflow
+
+# 1. Events / Triggers
+on:
+  workflow_dispatch: # Manual Trigger
+  push:
+    branches: [ main, qa, dev ] # Branch Filtering
+  pull_request:
+    branches: [ main, qa, dev ] # Branch Filtering
+
+# 3. Jobs
+jobs:
+  # 2. Parallel Jobs
+  verify-linting:
+    runs-on: ubuntu-latest # GitHub-Hosted Runner
+    steps:
+      - name: Fetch Codebase
+        uses: actions/checkout@v4 # Reusable Marketplace Action
+
+      - name: Verify Code Syntax
+        run: |
+          echo "Simulating React project linting..."
+          echo "Running: npm run lint"
+
+  compile-application:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Codebase
+        uses: actions/checkout@v4
+
+      - name: Build Assets
+        run: |
+          echo "Simulating React build production asset generation..."
+          mkdir dist
+          echo "React-Todo-Build-v1-${{ github.sha }}" > dist/index.html
