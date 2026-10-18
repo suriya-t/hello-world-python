@@ -1,26 +1,20 @@
-name: Python DEV deployment workflow
+name: TaskMaster-Pipeline
 
 # 1. Events / Triggers
 on:
-  workflow_dispatch: # Manual Trigger
   push:
-    branches: [ main, qa, dev ] # Branch Filtering
-  pull_request:
-    branches: [ main, qa, dev ] # Branch Filtering
+    branches: [ main ]   # Branch filtering
 
-# 3. Jobs
 jobs:
-  # 2. Parallel Jobs
+  # 2. Parallel jobs
   verify-linting:
-    runs-on: ubuntu-latest # GitHub-Hosted Runner
+    runs-on: ubuntu-latest   # GitHub-hosted runner
     steps:
       - name: Fetch Codebase
-        uses: actions/checkout@v4 # Reusable Marketplace Action
+        uses: actions/checkout@v4   # Reusable marketplace action
 
-      - name: Verify Code Syntax
-        run: |
-          echo "Simulating React project linting..."
-          echo "Running: npm run lint"
+      - name: Validate HTML
+        run: npx --yes htmlhint@1.1.4 "site/**/*.html"
 
   compile-application:
     runs-on: ubuntu-latest
@@ -30,6 +24,8 @@ jobs:
 
       - name: Build Assets
         run: |
-          echo "Simulating React build production asset generation..."
           mkdir dist
-          echo "React-Todo-Build-v1-${{ github.sha }}" > dist/index.html
+          cp -r site/* dist/
+          sed -i "s/__COMMIT_SHA__/${GITHUB_SHA:0:7}/g" dist/index.html
+          sed -i "s/__BUILD_TIME__/$(date -u +%Y-%m-%dT%H:%M:%SZ)/g" dist/index.html
+          cat dist/index.html | grep -E "Build|sha"
